@@ -4,10 +4,13 @@ class Pawn {
     this.acceleration = createVector(0, 0);
     this.velocity = createVector(0, -2);
     this.position = createVector(x, y);
-    this.r = 6;
-    this.maxspeed = 3;
-    this.maxforce = 0.5;
-    this.detectionRadius = 150;
+    this.size = 6;
+    this.maxspeed = 4;
+    this.maxforce = 2;
+    this.wheatDetectionRadius = 200;
+    this.wheatAttractionMult = 3;
+    this.poisonDetectionRadius = 50;
+    this.poisonRepulsionMult = 1;
     this.hasTarget = false;
   }
 
@@ -18,18 +21,12 @@ class Pawn {
     this.velocity.limit(this.maxspeed);
     this.position.add(this.velocity);
     this.acceleration.mult(0);
-  }
-
-standardMovements() {
-
-    this.applyForce([random(-0.3,0.3),random(-0.3,0.3)]);
 
   }
 
+  boundaries(edge){
 
-boundaries(edge){
-
-  var desired = null;
+    var desired = null;
 
     if (this.position.x > width - edge) {
       desired = createVector(-this.maxspeed, this.velocity.y + random(-1,1));
@@ -39,11 +36,11 @@ boundaries(edge){
       desired = createVector(this.maxspeed, this.velocity.y+ random(-1,1));
     }
 
-    else if (this.position.y > height - 10) {
+    if (this.position.y > height - edge) {
       desired = createVector(this.velocity.x+ random(-1,1), -this.maxspeed);
     }
 
-    else if (this.position.y < 10) {
+    else if (this.position.y < edge) {
       desired = createVector(this.velocity.x+ random(-1,1), this.maxspeed);
     }
 
@@ -54,55 +51,90 @@ boundaries(edge){
       steer.limit(this.maxforce);
       this.applyForce(steer);
     }
-}
+  }
 
 
   applyForce(force) {
-
     this.acceleration.add(force);
   }
 
-  targets(list, sens) {
+  tracksGood(list){
 
-    var record = this.detectionRadius;
     var closest = -1;
-    for (var i = 0; i < list.length; i++) {
-      var d = this.position.dist(list[i]);
-      if (d < record) {
-        record = d;
-        closest = i;
+    var sens = list[0].forceApplied;
+      if (list[0].type == "wheat"){
+          var record = this.wheatDetectionRadius;
       }
-    }
-
-    if (record < 5) {
-      list.splice(closest, 1);
-      // this.maxspeed += 0.2;
-      // this.maxforce += 0.005;
-      record = this.detectionRadius;
-      // console.log(this.position.dist(list[closest]));
-    } else if (closest > -1 && record < this.detectionRadius) {
-      if (sens > 0){
-        return this.seek(list[closest], sens)
-      } else {
-        return this.seek(list[closest], sens*(0.5*d))
+      else {
+        var record = 150;
       }
 
-    }
+      for (var i = 1; i < list.length; i++) {
+        var d = this.position.dist(list[i].position);
+        if (d < record) {
+          record = d;
+          closest = i;
+        }
+      }
 
-    return createVector(0,0);
-
+      if (record < this.size) {
+        list.splice(closest, 1);
+        record = 100;
+      } else if (closest > -1 && record < this.wheatDetectionRadius) {
+        if (list[0].type == "wheat"){
+          return this.seek(list[closest], list[0].forceApplied*this.wheatAttractionMult)
+        }
+        else {
+          return createVector(0,0);
+        }
+      }
   }
 
-  seek(target,sens) {
+  tracksBad(list){
 
-    var desired = p5.Vector.sub(target, this.position);
+    var closest = -1;
+    var sens = list[0].forceApplied;
+      if (list[0].type == "poison"){
+          var record = this.poisonDetectionRadius;
+      }
+      else {
+        var record = 100;
+      }
+
+      for (var i = 1; i < list.length; i++) {
+        var d = this.position.dist(list[i].position);
+        if (d < record) {
+          record = d;
+          closest = i;
+        }
+      }
+
+      if (record < 5) {
+        list.splice(closest, 1);
+        record = 100;
+      } else if (closest > -1 && record < this.poisonDetectionRadius) {
+        if (list[0].type == "poison"){
+          return this.seek(list[closest], list[0].forceApplied*this.poisonRepulsionMult)
+        }
+        else {
+          return createVector(0,0);
+        }
+      }
+  }
+
+
+
+
+  seek(target, sens) {
+
+    var desired = p5.Vector.sub(target.position, this.position);
 
     if (sens > 0){
       stroke(0,255,0);
     } else{
       stroke(255,0,0);
     }
-    line(target.x, target.y, this.position.x, this.position.y);
+    line(target.position.x, target.position.y, this.position.x, this.position.y);
 
     desired.setMag(this.maxspeed);
 
@@ -113,16 +145,18 @@ boundaries(edge){
     this.applyForce(steer);
   }
 
-  display() {
+  displayPawn() {
     fill(127);
     stroke(200);
     strokeWeight(1);
     ellipse(this.position.x, this.position.y, 20,20);
     noFill();
-    stroke(0,200,0,50);
+    stroke(0,200,0,75);
     strokeWeight(1)
-    var dist = sqrt(2*pow(this.detectionRadius,2));
-    ellipse(this.position.x, this.position.y, dist-5);
+    ellipse(this.position.x, this.position.y, 2*this.wheatDetectionRadius);
+    stroke(200,0,0,75);
+    strokeWeight(1)
+    ellipse(this.position.x, this.position.y, 2*this.poisonDetectionRadius);
 
   }
 }
