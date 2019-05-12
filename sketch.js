@@ -3,45 +3,43 @@ let limit = 50;
 var wheat = [];
 var poison = [];
 
-
 function setup() {
   createCanvas(600, 600);
   for (var i = 0; i < 1; i++) {
-  villagers.push(new Pawn(random(width),random(height)));
-}
-  for (var i = 0 ; i < 10 ; i++){
-    x_wheat = 100 + random(width-200);
-    y_wheat = 100 + random(height-200);
-    x_poison = 100 + random(width-200);
-    y_poison = 100 + random(height-200);
-    wheat.push(createVector(x_wheat,y_wheat));
-    poison.push(createVector(x_poison, y_poison));
-
+    villagers.push(new Pawn(random(width),random(height)));
   }
+
+  wheat = generateDots(18, 'wheat');
+  poison = generateDots(4, 'poison');
+
 }
+
+function generateDots(number, type){
+  var list = [];
+  for (i = 0 ; i < number ; i++){
+    list.push(new Dot(100 + random(width-200), 100 + random(height-200), type));
+  }
+  return list;
+}
+
 
 function draw() {
-  background(51);
-
-  for (var i = 0; i < wheat.length; i++){
-    fill(0,255,0)
-    noStroke()
-    ellipse(wheat[i].x,wheat[i].y,8,8)
-  }
-
-  for (var i = 0; i < poison.length; i++){
-    fill(255,0,0)
-    noStroke()
-    ellipse(poison[i].x,poison[i].y,8,8)
-  }
+  background(50);
 
   for (var i = 0; i < villagers.length; i++){
-    villagers[i].targets(wheat, 3);
-    villagers[i].targets(poison, -0.05);
+    villagers[i].tracksGood(wheat);
+    villagers[i].tracksBad(poison);
     villagers[i].update();
     // villagers[i].standardMovements();
     villagers[i].boundaries(limit)
-    villagers[i].display();
+    villagers[i].displayPawn();
   }
 
+  for (var i = 1; i < wheat.length; i++){
+    wheat[i].display();
+  }
+
+  for (var i = 1; i < poison.length; i++){
+    poison[i].display();
+  }
 }
