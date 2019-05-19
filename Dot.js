@@ -1,6 +1,6 @@
 class Dot {
   constructor(x, y, type) {
-    this.position = createVector(x, y);
+    this.position = game.createVector(x, y);
     this.type = type;
     this.size = 6;
     this.tracked = false;
@@ -27,11 +27,11 @@ class Dot {
     //     break;
     // }
     if (type == "wheat"){
-      fill(0,255,0)
+      game.fill(0,255,0)
     } else {
-      fill(255,0,0)
+      game.fill(255,0,0)
     }
-    noStroke()
-    ellipse(this.position.x,this.position.y,8,8)
+    game.noStroke()
+    game.ellipse(this.position.x,this.position.y,8,8)
   }
 }
