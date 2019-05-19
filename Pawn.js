@@ -13,7 +13,7 @@ class Pawn {
   }
 
   resetMaxSpeed(){
-    this.maxspeed = ["Speed", 4];
+    this.maxspeed = ["Speed", 3.7];
   }
 
   resetMaxForce(){
@@ -40,6 +40,10 @@ class Pawn {
     this.score = 0;
   }
 
+  resetBuffsCount(){
+    this.buffsCount = 0;
+  }
+
   resetStats(){
     this.resetMaxForce();
     this.resetMaxSpeed();
@@ -48,6 +52,7 @@ class Pawn {
     this.resetWheatAttraction();
     this.resetPoisonRepulsion();
     this.resetScore();
+    this.resetBuffsCount();
     this.effectApplied = ['boost', false ,'low', false];
 
   }
@@ -57,9 +62,8 @@ class Pawn {
     this.velocity.add(this.acceleration);
     this.velocity.limit(this.maxspeed[1]);
     this.position.add(this.velocity);
-
+    this.displayBonusMalus(gameWidth - 50, 20);
     this.resetBonusMalus();
-
 
   }
 
@@ -111,6 +115,7 @@ class Pawn {
       if (this.effectApplied[0] != 'Low'){
         this.maxspeed[1] = this.maxspeed[1] / 2;
         this.effectApplied[3] = true;
+        this.buffsCount++;
         this.startingTimePoison = time;
       }
       break;
@@ -124,10 +129,12 @@ class Pawn {
     if ((this.effectApplied[3]) && ((this.startingTimePoison - time) > 1.5)){
       this.effectApplied[3] = false;
       this.resetMaxSpeed();
+      this.buffsCount--;
+
+
     }
 
   }
-
 
 
   tracksGood(list){
@@ -198,9 +205,6 @@ class Pawn {
       }
   }
 
-
-
-
   seek(target, sens) {
 
     var desired = p5.Vector.sub(target.position, this.position);
@@ -246,6 +250,21 @@ class Pawn {
     }
   }
 
+
+  displayBonusMalus(x, y){
+    // console.log(this.effectApplied);
+    for (i = 0; i < this.effectApplied.length; i = i + 2){
+      if (this.effectApplied[i+1]){
+        game.fill('orange')
+        game.stroke(0)
+        game.rect(x, y, 15, 15)
+      }
+    }
+
+
+
+  }
+
   displayStat(stat, y){
 
     game.stroke(50)
@@ -262,7 +281,7 @@ class Pawn {
 
     // Maximum Speed
     var unit = game.floor(this.maxspeed[1]);
-    var dec = this.maxspeed[1] - unit;
+    var dec = this.maxspeed[1] % 1;
     game.fill(0)
     game.text(this.maxspeed[0].toUpperCase(), statsXPosition, y+6)
 
@@ -332,22 +351,21 @@ class Pawn {
     game.fill(0);
     game.noStroke();
     game.textSize(15)
-    game.text("Pawn #" + this.id, x, y);
 
     game.textSize(10);
-    game.text("x :                 " + game.floor(this.position.x), x, y + 15);
-    game.text("y :                 " + game.floor(this.position.y), x, y + 30);
-    game.text("Speed :             " + game.nf(this.velocity.mag(),0,2), x, y + 45);
-    game.text("Accel :             " + game.nf(this.acceleration.mag(),0,2), x, y + 60);
-    game.text("Size :              " + this.size, x, y + 75);
+    // game.text("x :                 " + game.floor(this.position.x), x, y + 15);
+    // game.text("y :                 " + game.floor(this.position.y), x, y + 30);
+    // game.text("Speed :             " + game.nf(this.velocity.mag(),0,2), x, y + 45);
+    // game.text("Accel :             " + game.nf(this.acceleration.mag(),0,2), x, y + 60);
+    // game.text("Size :              " + this.size, x, y + 75);
     game.text("MaximumSpeed :      " + this.maxspeed[1], x, y + 90);
-    game.text("MaximumForce :      " + this.maxforce, x, y + 105);
-    game.text("Wheat Radius :      " + this.wheatDetectionRadius[1], x, y + 120);
-    game.text("Wheat Attraction :  " + this.wheatAttractionMult[1], x, y + 135);
-    game.text("Poison Radius :     " + this.poisonDetectionRadius[1], x, y + 150);
-    game.text("Poison Repulsion :  " + this.poisonRepulsionMult[1], x, y + 165);
-    game.text("Target :            " + this.hasTarget, x, y + 180);
-    game.text("Effect :            " + this.effectApplied[0], x, y + 195);
+    // game.text("MaximumForce :      " + this.maxforce, x, y + 105);
+    // game.text("Wheat Radius :      " + this.wheatDetectionRadius[1], x, y + 120);
+    // game.text("Wheat Attraction :  " + this.wheatAttractionMult[1], x, y + 135);
+    // game.text("Poison Radius :     " + this.poisonDetectionRadius[1], x, y + 150);
+    // game.text("Poison Repulsion :  " + this.poisonRepulsionMult[1], x, y + 165);
+    // game.text("Target :            " + this.hasTarget, x, y + 180);
+    // game.text("Effect :            " + this.effectApplied[0], x, y + 195);
   }
 
 }

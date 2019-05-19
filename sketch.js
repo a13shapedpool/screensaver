@@ -11,17 +11,22 @@ var statsYPosition = 200;
 var buttonsStandardWidth = 75;
 var buttonsStandardHeight = 20;
 var time;
+var ending;
+
 
 var sketchGame = function(p) {
   let villagers = [];
-  var maxPawns = 2;
+  var maxPawns = 1;
   var startingWheat = 15;
-  var startingPoison = 5;
+  var startingPoison = 200;
   let limit = 50;
   var wheat = [];
   var poison = [];
-  let totalTimer = 20;
+  let totalTimer = 3;
+  var endTimer = 0;
   var countList = [];
+
+
 
 
   p.setup = function(){
@@ -57,6 +62,7 @@ var sketchGame = function(p) {
   }
 
   function resetSketch(){
+    ending = false;
     villagers.length = 0;
     timerStart = p.floor(p.frameCount / 60);
     for (var i = 1; i < maxPawns + 1; i++) {
@@ -73,12 +79,46 @@ var sketchGame = function(p) {
     list.push(new Dot(xRange, yRange, type));
   }
 
+  function checkEnding(){
+    var max;
+
+    if (wheat.length == 0 || time <= 0){
+      for (i = 0 ; i < villagers.length ; i++){
+        villagers[i].maxspeed[1] = 0;
+        if (max === undefined || villagers[i].score > max){
+          winner = i+1;
+          max = villagers[i].score;
+        }
+      }
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(50)
+      p.fill(255)
+      p.text("PAWN #" + winner + " WINS !!", gameWidth/2, gameHeight/2)
+
+      if (!ending){
+        endTimer = time;
+      }
+
+      ending = true;
+      if (endTimer - time > 3){
+        resetSketch();
+      }
+    }
+  }
+
+
   function timer(){
     p.fill(0)
     time = totalTimer + timerStart - (p.frameCount / 60);
+    if (time < 0 || ending){
+      timerDisplayed = endTimer;
+    }
+    else {
+      timerDisplayed = time;
+    }
     p.textAlign(p.LEFT, p.CENTER);
     p.textSize(15);
-    p.text("Time left : " + p.floor(time), gameWidth + 20, 20);
+    p.text("Time left : " + p.floor(timerDisplayed + 0.99), gameWidth + 20, 20);
     return time;
   }
 
@@ -101,6 +141,7 @@ var sketchGame = function(p) {
     p.fill(255)
     p.rect(gameWidth, 0, totalWidth-gameWidth, totalHeight);
     p.rect(0, gameHeight, totalWidth, totalHeight-gameHeight);
+
     time = timer();
     counter();
 
@@ -150,10 +191,7 @@ var sketchGame = function(p) {
       poison[i].display();
     }
 
-    if (wheat.length == 0 || time == 0){
-      resetSketch();
-    }
-
+    checkEnding();
   }
 
 
