@@ -1,4 +1,4 @@
-let debug = true;
+let debug = false;
 
 var totalWidth = 800;
 var totalHeight = 800;
@@ -6,15 +6,17 @@ var gameWidth = 600;
 var gameHeight = 600;
 var buttonsXPosition = 20;
 var buttonsYPosition = gameHeight + 20;
+var statsXPosition = gameWidth + 20;
+var statsYPosition = 200;
 var buttonsStandardWidth = 75;
 var buttonsStandardHeight = 20;
 var time;
 
 var sketchGame = function(p) {
   let villagers = [];
-  var maxPawns = 1;
+  var maxPawns = 2;
   var startingWheat = 15;
-  var startingPoison = 10;
+  var startingPoison = 5;
   let limit = 50;
   var wheat = [];
   var poison = [];
@@ -66,7 +68,9 @@ var sketchGame = function(p) {
 
 
   function addDot(list, type){
-    list.push(new Dot(75 + p.random(gameWidth-150), 75 + p.random(gameHeight-150), type));
+    xRange = 75 + p.random(gameWidth - 150);
+    yRange = 75 + p.random(gameHeight - 150);
+    list.push(new Dot(xRange, yRange, type));
   }
 
   function timer(){
@@ -132,7 +136,10 @@ var sketchGame = function(p) {
       villagers[i].update();
       villagers[i].boundaries(limit)
       villagers[i].displayPawn();
-      villagers[i].displayStats(gameWidth + 20, 200);
+      villagers[i].displayStat(villagers[i].maxspeed, statsYPosition*(i+1));
+      if (debug){
+        villagers[i].displayDebugStats(gameWidth + 20, 200);
+      }
     }
 
     for (var i = 0; i < wheat.length; i++){

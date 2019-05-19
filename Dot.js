@@ -27,9 +27,9 @@ class Dot {
     //     break;
     // }
     if (type == "wheat"){
-      game.fill(0,255,0)
+      game.fill(50,200,0)
     } else {
-      game.fill(255,0,0)
+      game.fill(255,20,0)
     }
     game.noStroke()
     game.ellipse(this.position.x,this.position.y,8,8)
